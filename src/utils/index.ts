@@ -1,2 +1,2 @@
-export { TimeUtils } from './TimeUtils';
-export { NumberUtils } from './NumberUtils';
+export { TimeUtils } from './TimeUtils'
+export { NumberUtils } from './NumberUtils'

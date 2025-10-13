@@ -1,5 +1,5 @@
-import type { CompareDirective } from './CompareDirective';
-import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types';
+import type { CompareDirective } from './CompareDirective'
+import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
 
 /**
  * StartsWith directive for string pattern matching
@@ -9,16 +9,16 @@ import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
  * Example: {{compare:startsWith:Hello}}
  */
 export class StartsWithDirective implements CompareDirective {
-  readonly name = 'startsWith';
+  readonly name = 'startsWith'
 
   createMatcher(request: DirectiveRequest) {
-    const { directive } = request;
+    const { directive } = request
 
     if (directive.args.length === 0) {
-      throw new Error('startsWith directive requires at least one argument');
+      throw new Error('startsWith directive requires at least one argument')
     }
 
-    const pattern = directive.args.join(':'); // Rejoin in case pattern contained escaped colons
+    const pattern = directive.args.join(':') // Rejoin in case pattern contained escaped colons
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (actual: any, _expected: any, _context: MatchContext): MatchResult => {
@@ -27,7 +27,7 @@ export class StartsWithDirective implements CompareDirective {
         return {
           success: false,
           error: `Expected string, got ${typeof actual}`,
-        };
+        }
       }
 
       // Check if actual starts with pattern
@@ -35,13 +35,13 @@ export class StartsWithDirective implements CompareDirective {
         return {
           success: true,
           details: `String starts with '${pattern}'`,
-        };
+        }
       }
 
       return {
         success: false,
         error: `Expected string to start with '${pattern}', but got '${actual}'`,
-      };
-    };
+      }
+    }
   }
 }

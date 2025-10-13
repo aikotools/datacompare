@@ -1,4 +1,4 @@
-import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types';
+import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
 
 /**
  * Base interface for compare directives
@@ -13,7 +13,7 @@ export interface CompareDirective {
   /**
    * Unique name for this directive (e.g., 'startsWith', 'time', 'ref')
    */
-  readonly name: string;
+  readonly name: string
 
   /**
    * Create a matcher for this directive
@@ -26,5 +26,5 @@ export interface CompareDirective {
    */
   createMatcher(
     request: DirectiveRequest
-  ): (actual: any, expected: any, context: MatchContext) => MatchResult; // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): (actual: any, expected: any, context: MatchContext) => MatchResult // eslint-disable-line @typescript-eslint/no-explicit-any
 }

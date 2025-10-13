@@ -1,1 +1,1 @@
-export type { CompareTransform } from './Transform';
+export type { CompareTransform } from './Transform'

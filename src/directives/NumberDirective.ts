@@ -1,6 +1,6 @@
-import type { CompareDirective } from './CompareDirective';
-import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types';
-import { NumberUtils } from '../utils/NumberUtils';
+import type { CompareDirective } from './CompareDirective'
+import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
+import { NumberUtils } from '../utils/NumberUtils'
 
 /**
  * Number directive for number range and tolerance comparisons
@@ -13,23 +13,23 @@ import { NumberUtils } from '../utils/NumberUtils';
  * - {{compare:number:tolerance:100:±10%}} → Number 100 ± 10% (90-110)
  */
 export class NumberDirective implements CompareDirective {
-  readonly name = 'number';
+  readonly name = 'number'
 
   createMatcher(request: DirectiveRequest) {
-    const { directive } = request;
+    const { directive } = request
 
     if (directive.args.length === 0) {
-      throw new Error('number directive requires at least one argument');
+      throw new Error('number directive requires at least one argument')
     }
 
-    const mode = directive.args[0];
+    const mode = directive.args[0]
 
     if (mode === 'range') {
-      return this.createRangeMatcher(directive.args.slice(1));
+      return this.createRangeMatcher(directive.args.slice(1))
     } else if (mode === 'tolerance') {
-      return this.createToleranceMatcher(directive.args.slice(1));
+      return this.createToleranceMatcher(directive.args.slice(1))
     } else {
-      throw new Error(`Unknown number mode '${mode}'. Available modes: range, tolerance`);
+      throw new Error(`Unknown number mode '${mode}'. Available modes: range, tolerance`)
     }
   }
 
@@ -41,10 +41,10 @@ export class NumberDirective implements CompareDirective {
    */
   private createRangeMatcher(args: string[]) {
     if (args.length < 2) {
-      throw new Error('number:range requires 2 arguments: min and max');
+      throw new Error('number:range requires 2 arguments: min and max')
     }
 
-    const range = NumberUtils.parseNumberRange(args[0], args[1]);
+    const range = NumberUtils.parseNumberRange(args[0], args[1])
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (actual: any, _expected: any, _context: MatchContext): MatchResult => {
@@ -53,25 +53,25 @@ export class NumberDirective implements CompareDirective {
         return {
           success: false,
           error: `Expected number, got ${typeof actual}`,
-        };
+        }
       }
 
       // Check if within range
-      const result = NumberUtils.isNumberInRange(actual, range);
+      const result = NumberUtils.isNumberInRange(actual, range)
 
       if (result.inRange) {
         return {
           success: true,
           details: `Number ${actual} is within range ${NumberUtils.formatRange(range)}`,
           matchedValue: actual,
-        };
+        }
       } else {
         return {
           success: false,
           error: `Number ${actual} is outside range ${NumberUtils.formatRange(range)} (distance: ${result.distance})`,
-        };
+        }
       }
-    };
+    }
   }
 
   /**
@@ -82,10 +82,10 @@ export class NumberDirective implements CompareDirective {
    */
   private createToleranceMatcher(args: string[]) {
     if (args.length < 2) {
-      throw new Error('number:tolerance requires 2 arguments: value and tolerance');
+      throw new Error('number:tolerance requires 2 arguments: value and tolerance')
     }
 
-    const spec = NumberUtils.parseNumberTolerance(args[0], args[1]);
+    const spec = NumberUtils.parseNumberTolerance(args[0], args[1])
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (actual: any, _expected: any, _context: MatchContext): MatchResult => {
@@ -94,24 +94,24 @@ export class NumberDirective implements CompareDirective {
         return {
           success: false,
           error: `Expected number, got ${typeof actual}`,
-        };
+        }
       }
 
       // Check if within tolerance
-      const result = NumberUtils.isNumberWithinTolerance(actual, spec);
+      const result = NumberUtils.isNumberWithinTolerance(actual, spec)
 
       if (result.within) {
         return {
           success: true,
           details: `Number ${actual} is within tolerance of ${NumberUtils.formatTolerance(spec)} (difference: ${result.difference.toFixed(2)}, allowed: ${result.allowedDifference.toFixed(2)})`,
           matchedValue: actual,
-        };
+        }
       } else {
         return {
           success: false,
           error: `Number ${actual} exceeds tolerance of ${NumberUtils.formatTolerance(spec)} (difference: ${result.difference.toFixed(2)}, allowed: ${result.allowedDifference.toFixed(2)})`,
-        };
+        }
       }
-    };
+    }
   }
 }

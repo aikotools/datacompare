@@ -8,7 +8,7 @@ export interface CompareTransform {
   /**
    * Unique name for this transform (e.g., 'toISO', 'toString')
    */
-  readonly name: string;
+  readonly name: string
 
   /**
    * Apply the transformation to a value
@@ -18,5 +18,5 @@ export interface CompareTransform {
    * @returns Transformed value
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(value: any, params?: string[]): any;
+  apply(value: any, params?: string[]): any
 }

@@ -3,7 +3,7 @@
 Advanced data comparison engine with directive-based matching for E2E testing.
 
 [![npm version](https://badge.fury.io/js/@aikotools%2Fdatacompare.svg)](https://www.npmjs.com/package/@aikotools/datacompare)
-[![License: DBISL](https://img.shields.io/badge/License-DBISL-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Overview
 
@@ -344,7 +344,7 @@ npm run format
 
 ## License
 
-DBISL
+MIT - See [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

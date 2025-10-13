@@ -8,17 +8,17 @@
 export interface CompareRequest {
   /** Expected object with compare directives */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  expected: any;
+  expected: any
 
   /** Actual object to compare against */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actual: any;
+  actual: any
 
   /** Optional context for comparison */
-  context?: CompareContext;
+  context?: CompareContext
 
   /** Optional comparison options */
-  options?: CompareOptions;
+  options?: CompareOptions
 }
 
 /**
@@ -26,19 +26,19 @@ export interface CompareRequest {
  */
 export interface CompareOptions {
   /** Data format being compared */
-  format?: 'json' | 'text' | 'xml';
+  format?: 'json' | 'text' | 'xml'
 
   /** Strict mode: exact matching everywhere (no partial matching) */
-  strictMode?: boolean;
+  strictMode?: boolean
 
   /** Ignore extra properties in actual object (default: true) */
-  ignoreExtraProperties?: boolean;
+  ignoreExtraProperties?: boolean
 
   /** Maximum nesting depth for recursive comparison */
-  maxDepth?: number;
+  maxDepth?: number
 
   /** Stop comparison after first N errors (for performance) */
-  maxErrors?: number;
+  maxErrors?: number
 }
 
 /**
@@ -46,17 +46,17 @@ export interface CompareOptions {
  */
 export interface CompareContext {
   /** Test case identifier */
-  testcaseId?: string;
+  testcaseId?: string
 
   /** ISO timestamp when test started */
-  startTimeTest?: string;
+  startTimeTest?: string
 
   /** ISO timestamp when script started */
-  startTimeScript?: string;
+  startTimeScript?: string
 
   /** Additional context data */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+  [key: string]: any
 }
 
 /**
@@ -64,16 +64,16 @@ export interface CompareContext {
  */
 export interface CompareResult {
   /** Overall success status (true = no errors) */
-  success: boolean;
+  success: boolean
 
   /** List of all errors found */
-  errors: CompareError[];
+  errors: CompareError[]
 
   /** Detailed information about all checks performed */
-  details: CompareDetail[];
+  details: CompareDetail[]
 
   /** Statistics about the comparison */
-  stats: CompareStats;
+  stats: CompareStats
 }
 
 /**
@@ -98,21 +98,21 @@ export enum CompareErrorType {
  */
 export interface CompareError {
   /** JSON path to the error location */
-  path: string;
+  path: string
 
   /** Type of error */
-  type: CompareErrorType;
+  type: CompareErrorType
 
   /** Expected value */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  expected: any;
+  expected: any
 
   /** Actual value */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actual: any;
+  actual: any
 
   /** Human-readable error message */
-  message: string;
+  message: string
 }
 
 /**
@@ -120,24 +120,24 @@ export interface CompareError {
  */
 export interface CompareDetail {
   /** JSON path to the checked location */
-  path: string;
+  path: string
 
   /** Whether the check passed */
-  passed: boolean;
+  passed: boolean
 
   /** Expected value */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  expected: any;
+  expected: any
 
   /** Actual value */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actual: any;
+  actual: any
 
   /** Optional message */
-  message?: string;
+  message?: string
 
   /** Type of check performed */
-  checkType?: string;
+  checkType?: string
 }
 
 /**
@@ -145,19 +145,19 @@ export interface CompareDetail {
  */
 export interface CompareStats {
   /** Total number of checks performed */
-  totalChecks: number;
+  totalChecks: number
 
   /** Number of checks that passed */
-  passedChecks: number;
+  passedChecks: number
 
   /** Number of checks that failed */
-  failedChecks: number;
+  failedChecks: number
 
   /** Comparison duration in milliseconds */
-  duration: number;
+  duration: number
 
   /** Maximum depth reached during comparison */
-  maxDepthReached?: number;
+  maxDepthReached?: number
 }
 
 /**
@@ -165,16 +165,16 @@ export interface CompareStats {
  */
 export interface ParsedDirective {
   /** Original directive string */
-  original: string;
+  original: string
 
   /** Directive action (startsWith, endsWith, time, ref, etc.) */
-  action: string;
+  action: string
 
   /** Directive arguments */
-  args: string[];
+  args: string[]
 
   /** Transform pipeline */
-  transforms: ParsedTransform[];
+  transforms: ParsedTransform[]
 }
 
 /**
@@ -182,10 +182,10 @@ export interface ParsedDirective {
  */
 export interface ParsedTransform {
   /** Transform name */
-  name: string;
+  name: string
 
   /** Transform parameters */
-  params: string[];
+  params: string[]
 }
 
 /**
@@ -193,22 +193,22 @@ export interface ParsedTransform {
  */
 export interface MatchContext {
   /** JSON path as array */
-  path: string[];
+  path: string[]
 
   /** Actual value */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actual: any;
+  actual: any
 
   /** Expected value (may contain directive) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  expected: any;
+  expected: any
 
   /** Compare context */
-  compareContext: CompareContext;
+  compareContext: CompareContext
 
   /** Parent object (for context-aware matching) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parent?: any;
+  parent?: any
 }
 
 /**
@@ -216,17 +216,17 @@ export interface MatchContext {
  */
 export interface MatchResult {
   /** Whether the match succeeded */
-  success: boolean;
+  success: boolean
 
   /** Error message if match failed */
-  error?: string;
+  error?: string
 
   /** Additional details about the match */
-  details?: string;
+  details?: string
 
   /** Actual value that was matched (after transformations) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  matchedValue?: any;
+  matchedValue?: any
 }
 
 /**
@@ -234,15 +234,15 @@ export interface MatchResult {
  */
 export interface DirectiveRequest {
   /** Parsed directive */
-  directive: ParsedDirective;
+  directive: ParsedDirective
 
   /** Comparison context */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: Record<string, any>;
+  context: Record<string, any>
 
   /** Reference to registry (avoiding circular dependency) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registry?: any;
+  registry?: any
 }
 
 /**
@@ -250,13 +250,13 @@ export interface DirectiveRequest {
  */
 export interface TimeRange {
   /** Offset before base time (negative or 0) */
-  before: number;
+  before: number
 
   /** Offset after base time (positive or 0) */
-  after: number;
+  after: number
 
   /** Time unit (seconds, minutes, hours, days) */
-  unit: TimeUnit;
+  unit: TimeUnit
 }
 
 /**
@@ -270,17 +270,17 @@ export type TimeUnit =
   | 'days'
   | 'weeks'
   | 'months'
-  | 'years';
+  | 'years'
 
 /**
  * Number range specification
  */
 export interface NumberRange {
   /** Minimum value (inclusive) */
-  min: number;
+  min: number
 
   /** Maximum value (inclusive) */
-  max: number;
+  max: number
 }
 
 /**
@@ -288,13 +288,13 @@ export interface NumberRange {
  */
 export interface NumberTolerance {
   /** Base value */
-  value: number;
+  value: number
 
   /** Tolerance amount */
-  tolerance: number;
+  tolerance: number
 
   /** Whether tolerance is percentage */
-  isPercentage: boolean;
+  isPercentage: boolean
 }
 
 /**
@@ -302,17 +302,17 @@ export interface NumberTolerance {
  */
 export interface ReferencePlaceholder {
   /** Unique identifier */
-  id: string;
+  id: string
 
   /** List of paths where this reference appears */
-  paths: ReferencePath[];
+  paths: ReferencePath[]
 
   /** Resolved value (once determined) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any;
+  value?: any
 
   /** Whether value has been resolved */
-  resolved: boolean;
+  resolved: boolean
 }
 
 /**
@@ -320,14 +320,14 @@ export interface ReferencePlaceholder {
  */
 export interface ReferencePath {
   /** JSON path as array */
-  path: string[];
+  path: string[]
 
   /** Type of occurrence (value or key) */
-  type: 'value' | 'key';
+  type: 'value' | 'key'
 
   /** Value found at this path in actual object */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actualValue?: any;
+  actualValue?: any
 }
 
 /**
@@ -345,9 +345,9 @@ export const COMPARE_KEYWORDS = {
 
   /** Ignore array element order */
   IGNORE_ORDER: '{{compare:ignoreOrder}}',
-} as const;
+} as const
 
 /**
  * Directive pattern regex
  */
-export const DIRECTIVE_PATTERN = /\{\{compare:([^}]+)\}\}/g;
+export const DIRECTIVE_PATTERN = /\{\{compare:([^}]+)\}\}/g

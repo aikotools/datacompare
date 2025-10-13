@@ -1,4 +1,4 @@
-import type { MatchResult, MatchContext } from '../core/types';
+import type { MatchResult, MatchContext } from '../core/types'
 
 /**
  * Interface for compare matchers
@@ -16,5 +16,5 @@ export interface CompareMatcher {
    * @returns Match result with success status and optional error message
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  match(actual: any, expected: any, context: MatchContext): MatchResult;
+  match(actual: any, expected: any, context: MatchContext): MatchResult
 }

@@ -1,4 +1,4 @@
-import type { NumberRange, NumberTolerance } from '../core/types';
+import type { NumberRange, NumberTolerance } from '../core/types'
 
 /**
  * Utility functions for number comparisons and range calculations
@@ -11,18 +11,18 @@ export class NumberUtils {
    * Example: "0:100" → {min: 0, max: 100}
    */
   static parseNumberRange(minStr: string, maxStr: string): NumberRange {
-    const min = parseFloat(minStr);
-    const max = parseFloat(maxStr);
+    const min = parseFloat(minStr)
+    const max = parseFloat(maxStr)
 
     if (isNaN(min) || isNaN(max)) {
-      throw new Error(`Invalid number range: ${minStr}:${maxStr}`);
+      throw new Error(`Invalid number range: ${minStr}:${maxStr}`)
     }
 
     if (min > max) {
-      throw new Error(`Invalid range: min (${min}) cannot be greater than max (${max})`);
+      throw new Error(`Invalid range: min (${min}) cannot be greater than max (${max})`)
     }
 
-    return { min, max };
+    return { min, max }
   }
 
   /**
@@ -33,26 +33,26 @@ export class NumberUtils {
    * - ±10% → {value: 0, tolerance: 10, isPercentage: true}
    */
   static parseNumberTolerance(valueStr: string, toleranceStr: string): NumberTolerance {
-    const value = parseFloat(valueStr);
+    const value = parseFloat(valueStr)
     if (isNaN(value)) {
-      throw new Error(`Invalid value: ${valueStr}`);
+      throw new Error(`Invalid value: ${valueStr}`)
     }
 
     // Check if tolerance is percentage
-    const isPercentage = toleranceStr.endsWith('%');
-    const toleranceNumStr = isPercentage ? toleranceStr.slice(0, -1) : toleranceStr;
+    const isPercentage = toleranceStr.endsWith('%')
+    const toleranceNumStr = isPercentage ? toleranceStr.slice(0, -1) : toleranceStr
 
     // Remove ± prefix if present
     const cleanTolerance = toleranceNumStr.startsWith('±')
       ? toleranceNumStr.slice(1)
-      : toleranceNumStr;
+      : toleranceNumStr
 
-    const tolerance = parseFloat(cleanTolerance);
+    const tolerance = parseFloat(cleanTolerance)
     if (isNaN(tolerance) || tolerance < 0) {
-      throw new Error(`Invalid tolerance: ${toleranceStr}`);
+      throw new Error(`Invalid tolerance: ${toleranceStr}`)
     }
 
-    return { value, tolerance, isPercentage };
+    return { value, tolerance, isPercentage }
   }
 
   /**
@@ -62,17 +62,17 @@ export class NumberUtils {
     actual: number,
     range: NumberRange
   ): { inRange: boolean; distance: number } {
-    const inRange = actual >= range.min && actual <= range.max;
+    const inRange = actual >= range.min && actual <= range.max
 
     // Calculate distance from range (0 if inside, positive if outside)
-    let distance = 0;
+    let distance = 0
     if (actual < range.min) {
-      distance = range.min - actual;
+      distance = range.min - actual
     } else if (actual > range.max) {
-      distance = actual - range.max;
+      distance = actual - range.max
     }
 
-    return { inRange, distance };
+    return { inRange, distance }
   }
 
   /**
@@ -85,22 +85,22 @@ export class NumberUtils {
     // Calculate allowed difference
     const allowedDifference = spec.isPercentage
       ? (Math.abs(spec.value) * spec.tolerance) / 100
-      : spec.tolerance;
+      : spec.tolerance
 
     // Calculate actual difference
-    const difference = Math.abs(actual - spec.value);
+    const difference = Math.abs(actual - spec.value)
 
     // Check if within tolerance
-    const within = difference <= allowedDifference;
+    const within = difference <= allowedDifference
 
-    return { within, difference, allowedDifference };
+    return { within, difference, allowedDifference }
   }
 
   /**
    * Format a range for error messages
    */
   static formatRange(range: NumberRange): string {
-    return `[${range.min}, ${range.max}]`;
+    return `[${range.min}, ${range.max}]`
   }
 
   /**
@@ -108,9 +108,9 @@ export class NumberUtils {
    */
   static formatTolerance(spec: NumberTolerance): string {
     if (spec.isPercentage) {
-      return `${spec.value} ±${spec.tolerance}%`;
+      return `${spec.value} ±${spec.tolerance}%`
     } else {
-      return `${spec.value} ±${spec.tolerance}`;
+      return `${spec.value} ±${spec.tolerance}`
     }
   }
 }

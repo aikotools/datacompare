@@ -1,5 +1,5 @@
-import type { CompareDirective } from './CompareDirective';
-import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types';
+import type { CompareDirective } from './CompareDirective'
+import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
 
 /**
  * Regex directive for string pattern matching
@@ -9,25 +9,25 @@ import type { DirectiveRequest, MatchResult, MatchContext } from '../core/types'
  * Example: {{compare:regex:user_\d{5}}}
  */
 export class RegexDirective implements CompareDirective {
-  readonly name = 'regex';
+  readonly name = 'regex'
 
   createMatcher(request: DirectiveRequest) {
-    const { directive } = request;
+    const { directive } = request
 
     if (directive.args.length === 0) {
-      throw new Error('regex directive requires at least one argument');
+      throw new Error('regex directive requires at least one argument')
     }
 
-    const pattern = directive.args.join(':'); // Rejoin in case pattern contained escaped colons
+    const pattern = directive.args.join(':') // Rejoin in case pattern contained escaped colons
 
     // Compile regex
-    let regex: RegExp;
+    let regex: RegExp
     try {
-      regex = new RegExp(pattern);
+      regex = new RegExp(pattern)
     } catch (error) {
       throw new Error(
         `Invalid regex pattern '${pattern}': ${error instanceof Error ? error.message : String(error)}`
-      );
+      )
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,7 +37,7 @@ export class RegexDirective implements CompareDirective {
         return {
           success: false,
           error: `Expected string, got ${typeof actual}`,
-        };
+        }
       }
 
       // Test regex
@@ -45,13 +45,13 @@ export class RegexDirective implements CompareDirective {
         return {
           success: true,
           details: `String matches pattern /${pattern}/`,
-        };
+        }
       }
 
       return {
         success: false,
         error: `Expected string to match pattern /${pattern}/, but got '${actual}'`,
-      };
-    };
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
-import { CompareRegistry } from './CompareRegistry';
-import { CompareParser } from './CompareParser';
-import { RecursiveComparer } from './RecursiveComparer';
+import { CompareRegistry } from './CompareRegistry'
+import { CompareParser } from './CompareParser'
+import { RecursiveComparer } from './RecursiveComparer'
 import type {
   CompareRequest,
   CompareResult,
@@ -8,7 +8,7 @@ import type {
   CompareDetail,
   CompareStats,
   CompareErrorType,
-} from './types';
+} from './types'
 
 /**
  * Main comparison engine
@@ -16,26 +16,26 @@ import type {
  * Entry point for all data comparison operations
  */
 export class CompareEngine {
-  private registry: CompareRegistry;
-  private parser: CompareParser;
+  private registry: CompareRegistry
+  private parser: CompareParser
 
   constructor(registry?: CompareRegistry) {
-    this.registry = registry || new CompareRegistry();
-    this.parser = new CompareParser();
+    this.registry = registry || new CompareRegistry()
+    this.parser = new CompareParser()
   }
 
   /**
    * Get the registry (for registering custom directives)
    */
   getRegistry(): CompareRegistry {
-    return this.registry;
+    return this.registry
   }
 
   /**
    * Get the parser
    */
   getParser(): CompareParser {
-    return this.parser;
+    return this.parser
   }
 
   /**
@@ -44,18 +44,18 @@ export class CompareEngine {
    * This is the main entry point for comparison operations
    */
   async compare(request: CompareRequest): Promise<CompareResult> {
-    const startTime = Date.now();
-    const errors: CompareError[] = [];
-    const details: CompareDetail[] = [];
+    const startTime = Date.now()
+    const errors: CompareError[] = []
+    const details: CompareDetail[] = []
 
-    const { expected, actual, context = {}, options = {} } = request;
+    const { expected, actual, context = {}, options = {} } = request
 
     // Set default options
     const mergedOptions = {
       format: 'json' as const,
       ignoreExtraProperties: true,
       ...options,
-    };
+    }
 
     // Validate inputs
     if (actual === undefined) {
@@ -65,19 +65,19 @@ export class CompareEngine {
         expected: 'any value',
         actual: undefined,
         message: 'Actual value is undefined',
-      });
+      })
 
-      return this.buildResult(errors, details, startTime);
+      return this.buildResult(errors, details, startTime)
     }
 
     // Use RecursiveComparer for deep comparison
-    const comparer = new RecursiveComparer(this.parser, this.registry);
-    const result = await comparer.compare(expected, actual, [], context, mergedOptions);
+    const comparer = new RecursiveComparer(this.parser, this.registry)
+    const result = await comparer.compare(expected, actual, [], context, mergedOptions)
 
-    errors.push(...result.errors);
-    details.push(...result.details);
+    errors.push(...result.errors)
+    details.push(...result.details)
 
-    return this.buildResult(errors, details, startTime, result.maxDepthReached);
+    return this.buildResult(errors, details, startTime, result.maxDepthReached)
   }
 
   /**
@@ -89,10 +89,10 @@ export class CompareEngine {
     startTime: number,
     maxDepthReached?: number
   ): CompareResult {
-    const duration = Date.now() - startTime;
-    const passedChecks = details.filter(d => d.passed).length;
-    const failedChecks = errors.length;
-    const totalChecks = passedChecks + failedChecks;
+    const duration = Date.now() - startTime
+    const passedChecks = details.filter(d => d.passed).length
+    const failedChecks = errors.length
+    const totalChecks = passedChecks + failedChecks
 
     const stats: CompareStats = {
       totalChecks,
@@ -100,13 +100,13 @@ export class CompareEngine {
       failedChecks,
       duration,
       maxDepthReached,
-    };
+    }
 
     return {
       success: errors.length === 0,
       errors,
       details,
       stats,
-    };
+    }
   }
 }

@@ -1,1 +1,1 @@
-export type { CompareMatcher } from './Matcher';
+export type { CompareMatcher } from './Matcher'
