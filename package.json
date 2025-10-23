@@ -2,10 +2,22 @@
   "name": "@aikotools/datacompare",
   "version": "0.0.0-semantic-release",
   "description": "Advanced data comparison engine with directive-based matching for E2E testing",
-  "main": "./dist/aikotools-datacompare.js",
-  "module": "./dist/aikotools-datacompare.js",
+  "main": "./dist/aikotools-datacompare.cjs",
+  "module": "./dist/aikotools-datacompare.mjs",
   "types": "./dist/src/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/aikotools-datacompare.mjs"
+      },
+      "require": {
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/aikotools-datacompare.cjs"
+      }
+    }
+  },
   "scripts": {
     "dev": "vite",
     "format": "prettier --write \"src/**/*.{js,ts,json}\"",
