@@ -168,6 +168,71 @@ describe('Time Range Directives', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('should support {{compare:time:exact}} without offset', async () => {
+    const baseTime = '2025-11-05T15:30:00+01:00';
+
+    const result = await compareData({
+      expected: { timestamp: '{{compare:time:exact}}' },
+      actual: { timestamp: baseTime },
+      context: { startTimeTest: baseTime },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('should support {{compare:time:exact}} with offset in seconds', async () => {
+    const baseTime = '2025-11-05T15:30:00+01:00';
+    const actualTime = '2025-11-05T15:40:30+01:00'; // baseTime + 630 seconds
+
+    const result = await compareData({
+      expected: { abfahrt: '{{compare:time:exact:630:seconds}}' },
+      actual: { abfahrt: actualTime },
+      context: { startTimeTest: baseTime },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('should support {{compare:time:exact}} with offset in minutes', async () => {
+    const baseTime = '2025-11-05T15:30:00+01:00';
+    const actualTime = '2025-11-05T15:45:00+01:00'; // baseTime + 15 minutes
+
+    const result = await compareData({
+      expected: { timestamp: '{{compare:time:exact:15:minutes}}' },
+      actual: { timestamp: actualTime },
+      context: { startTimeTest: baseTime },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('should detect time mismatch with exact offset', async () => {
+    const baseTime = '2025-11-05T15:30:00+01:00';
+    const actualTime = '2025-11-05T15:45:00+01:00'; // baseTime + 15 minutes
+
+    const result = await compareData({
+      expected: { timestamp: '{{compare:time:exact:10:minutes}}' }, // expects 10 minutes
+      actual: { timestamp: actualTime }, // but actual is 15 minutes
+      context: { startTimeTest: baseTime },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.errors[0].message).toContain('Time mismatch');
+  });
+
+  it('should support negative offset (time in the past)', async () => {
+    const baseTime = '2025-11-05T15:30:00+01:00';
+    const actualTime = '2025-11-05T15:20:00+01:00'; // baseTime - 10 minutes
+
+    const result = await compareData({
+      expected: { timestamp: '{{compare:time:exact:-10:minutes}}' },
+      actual: { timestamp: actualTime },
+      context: { startTimeTest: baseTime },
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('Number Range Directives', () => {

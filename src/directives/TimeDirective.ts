@@ -11,7 +11,8 @@ import { TimeUtils } from '../utils/TimeUtils'
  * - {{compare:time:range:-300:+300:seconds}}  → Within 5 minutes past and future
  * - {{compare:time:range:+60:minutes}} → Up to 60 minutes in the future
  * - {{compare:time:range:-60:minutes}} → Up to 60 minutes in the past
- * - {{compare:time:exact}} → Exact time match
+ * - {{compare:time:exact}} → Exact time match with baseTime (offset = 0)
+ * - {{compare:time:exact:630:seconds}} → Exact match with baseTime + 630 seconds
  */
 export class TimeDirective implements CompareDirective {
   readonly name = 'time'
@@ -28,7 +29,7 @@ export class TimeDirective implements CompareDirective {
     if (mode === 'range') {
       return this.createRangeMatcher(directive.args.slice(1))
     } else if (mode === 'exact') {
-      return this.createExactMatcher()
+      return this.createExactMatcher(directive.args.slice(1))
     } else {
       throw new Error(`Unknown time mode '${mode}'. Available modes: range, exact`)
     }
@@ -125,9 +126,45 @@ export class TimeDirective implements CompareDirective {
   }
 
   /**
-   * Create an exact matcher (±0)
+   * Create an exact matcher with optional offset
+   *
+   * Args formats:
+   * - [] → No offset (baseTime + 0)
+   * - ["630", "seconds"] → baseTime + 630 seconds
    */
-  private createExactMatcher() {
+  private createExactMatcher(args: string[]) {
+    // Parse offset and unit
+    let offset = 0
+    let unit: TimeUnit = 'seconds'
+
+    if (args.length > 0) {
+      if (args.length !== 2) {
+        throw new Error('time:exact with offset requires exactly 2 arguments: offset and unit')
+      }
+
+      // Validate offset
+      offset = parseFloat(args[0])
+      if (isNaN(offset)) {
+        throw new Error(`Invalid time offset: ${args[0]}`)
+      }
+
+      // Validate unit
+      const validUnits: TimeUnit[] = [
+        'milliseconds',
+        'seconds',
+        'minutes',
+        'hours',
+        'days',
+        'weeks',
+        'months',
+        'years',
+      ]
+      unit = args[1] as TimeUnit
+      if (!validUnits.includes(unit)) {
+        throw new Error(`Invalid time unit '${unit}'. Valid units: ${validUnits.join(', ')}`)
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (actual: any, _expected: any, matchContext: MatchContext): MatchResult => {
       try {
@@ -137,19 +174,24 @@ export class TimeDirective implements CompareDirective {
         // Get base time from context
         const baseTime = TimeUtils.getBaseTime(matchContext.compareContext)
 
+        // Calculate expected time = baseTime + offset
+        const expectedTime = TimeUtils.calculateTime(baseTime, offset, unit)
+
         // Check if exactly equal
-        const diff = actualTime.diff(baseTime).as('milliseconds')
+        const diff = actualTime.diff(expectedTime).as('milliseconds')
 
         if (diff === 0) {
+          const offsetDesc = offset === 0 ? 'baseTime' : `baseTime + ${offset} ${unit}`
           return {
             success: true,
-            details: 'Time matches exactly',
+            details: `Time matches exactly (${offsetDesc})`,
             matchedValue: actual,
           }
         } else {
+          const offsetDesc = offset === 0 ? 'baseTime' : `baseTime + ${offset} ${unit}`
           return {
             success: false,
-            error: `Time mismatch. Difference: ${diff} milliseconds`,
+            error: `Time mismatch. Expected ${offsetDesc}, difference: ${diff} milliseconds`,
           }
         }
       } catch (error) {

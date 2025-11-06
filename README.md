@@ -134,11 +134,25 @@ await compareData({
   context: { startTimeTest: now },
 });
 
-// Exact time match
+// Exact time match (no offset = baseTime itself)
 await compareData({
   expected: { timestamp: '{{compare:time:exact}}' },
   actual: { timestamp: now },
   context: { startTimeTest: now },
+});
+
+// Exact time match with offset (baseTime + offset)
+await compareData({
+  expected: { abfahrt: '{{compare:time:exact:630:seconds}}' },
+  actual: { abfahrt: departureTime }, // exactly baseTime + 630 seconds
+  context: { startTimeTest: baseTime },
+});
+
+// Exact time match with negative offset (baseTime - offset)
+await compareData({
+  expected: { arrival: '{{compare:time:exact:-10:minutes}}' },
+  actual: { arrival: arrivalTime }, // exactly baseTime - 10 minutes
+  context: { startTimeTest: baseTime },
 });
 ```
 
@@ -247,9 +261,12 @@ const result = await engine.compare({
 - `{{compare:time:range:-N:+M:unit}}` - Time within range (N units in past, M units in future)
 - `{{compare:time:range:+N:unit}}` - Time within N units in the future only
 - `{{compare:time:range:-N:unit}}` - Time within N units in the past only
-- `{{compare:time:exact}}` - Exact time match
+- `{{compare:time:exact}}` - Exact time match with baseTime (offset = 0)
+- `{{compare:time:exact:N:unit}}` - Exact time match with baseTime + N units (supports negative values)
 
 **Units:** milliseconds, seconds, minutes, hours, days, weeks, months, years
+
+**Base Time Priority:** startTimeTest > startTimeScript > current time (from context)
 
 ### Number Ranges
 - `{{compare:number:range:min:max}}` - Number within [min, max]
