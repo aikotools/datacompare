@@ -66,17 +66,22 @@ export class TimeUtils {
    * Parse a timestamp (string or number) to DateTime
    *
    * Supports:
-   * - ISO strings: "2023-12-01T10:30:00Z"
+   * - ISO strings: "2023-12-01T10:30:00Z" or "2023-12-01T10:30:00+01:00"
    * - Unix timestamps in seconds: 1234567890
    * - Unix timestamps in milliseconds: 1234567890000
+   *
+   * Note: Preserves timezone information from ISO strings and converts to UTC
+   * for consistent comparisons.
    */
   static parseTimestamp(value: string | number): DateTime {
     if (typeof value === 'string') {
-      const dt = DateTime.fromISO(value, { zone: 'utc' })
+      // Parse ISO string with its original timezone, then convert to UTC
+      const dt = DateTime.fromISO(value)
       if (!dt.isValid) {
         throw new Error(`Invalid ISO timestamp: ${value}`)
       }
-      return dt
+      // Convert to UTC for consistent comparisons
+      return dt.toUTC()
     }
 
     if (typeof value === 'number') {
