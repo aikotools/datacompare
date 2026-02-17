@@ -181,7 +181,68 @@ await compareData({
 // ✅ 95 is within 100±10% (90-110)
 ```
 
-### 6. Special Keywords
+### 6. Ignore Paths
+
+Skip entire subtrees during comparison, regardless of type differences or nested mismatches.
+Useful for fields that are known to differ (e.g. direction fields populated by external systems).
+
+```typescript
+// Ignore a specific field
+await compareData({
+  expected: { name: 'John', secret: 'expectedValue' },
+  actual: { name: 'John', secret: 'completelyDifferent' },
+  options: {
+    ignorePaths: [
+      { path: ['secret'], doc: ['Secret field ignored for testing'] }
+    ]
+  }
+});
+// ✅ Passes - 'secret' is completely skipped
+
+// Wildcard matching with '*' (matches any segment including array indices)
+await compareData({
+  expected: {
+    data: {
+      allFahrtereignis: [
+        { name: 'event1', richtung: 'NORD' },
+        { name: 'event2', richtung: 'SUED' }
+      ]
+    }
+  },
+  actual: {
+    data: {
+      allFahrtereignis: [
+        { name: 'event1', richtung: 'WEST' },
+        { name: 'event2', richtung: 'OST' }
+      ]
+    }
+  },
+  options: {
+    ignorePaths: [
+      { path: ['data', 'allFahrtereignis', '*', 'richtung'], doc: ['Richtung wird ignoriert'] }
+    ]
+  }
+});
+// ✅ Passes - 'richtung' in all array elements is skipped
+
+// Subtree ignoring (entire nested structure is skipped)
+await compareData({
+  expected: { data: { nested: { deep: 'a', another: [1, 2, 3] } } },
+  actual: { data: { nested: { deep: 'b', another: [4, 5] } } },
+  options: {
+    ignorePaths: [
+      { path: ['data', 'nested'], doc: ['Entire subtree ignored'] }
+    ]
+  }
+});
+// ✅ Passes - everything under 'data.nested' is skipped
+```
+
+**IgnorePathConfig:**
+- `path`: Array of path segments. Use `'*'` as wildcard to match any single segment (including array indices like `[0]`).
+- `doc`: Optional array of documentation strings explaining why this path is ignored.
+
+### 7. Special Keywords
 
 ```typescript
 // Exact matching (no extra properties allowed)
@@ -222,6 +283,12 @@ Main comparison function.
 - `actual`: Actual object to compare against
 - `context`: Optional context (startTimeTest, startTimeScript, etc.)
 - `options`: Optional comparison options
+  - `format`: Data format (`'json'`, `'text'`, `'xml'`)
+  - `strictMode`: Exact matching everywhere (default: `false`)
+  - `ignoreExtraProperties`: Ignore extra properties in actual (default: `true`)
+  - `maxDepth`: Maximum nesting depth
+  - `maxErrors`: Stop after N errors
+  - `ignorePaths`: Array of `IgnorePathConfig` to skip entire subtrees (see section 6)
 
 **Returns:** `CompareResult` with:
 - `success`: boolean - Overall status
@@ -281,7 +348,9 @@ const result = await engine.compare({
 
 ## Examples
 
-See [tests/integration/BasicComparison.test.ts](tests/integration/BasicComparison.test.ts) for comprehensive examples.
+See the integration tests for comprehensive examples:
+- [BasicComparison.test.ts](tests/integration/BasicComparison.test.ts) - Core comparison features
+- [IgnorePaths.test.ts](tests/integration/IgnorePaths.test.ts) - ignorePaths feature
 
 ## Migration from e2e-tool-util-compare-object
 
@@ -334,14 +403,13 @@ npm run format
 
 ## Test Results
 
-✅ 16/18 tests passing
+✅ 39/39 tests passing (4 test files)
 - ✅ Basic object/array comparison
-- ✅ String pattern directives (startsWith, endsWith, contains)
+- ✅ String pattern directives (startsWith, endsWith, contains, regex)
 - ✅ Time range directives
 - ✅ Number range directives
 - ✅ Array flexibility (ignoreOrder, ignoreRest)
-- 🔧 ignore directive (minor fix needed)
-- 🔧 regex directive (escaping issue)
+- ✅ ignorePaths (exact, wildcard, subtree, nested)
 
 ## Roadmap
 
@@ -352,6 +420,7 @@ npm run format
 - [x] Time range comparisons
 - [x] Number range comparisons
 - [x] Array flexibility
+- [x] ignorePaths (skip subtrees with wildcard support)
 
 ### Coming Soon
 - [ ] Reference directives (`{{compare:ref:anId}}`)

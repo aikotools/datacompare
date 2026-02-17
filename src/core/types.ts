@@ -39,6 +39,22 @@ export interface CompareOptions {
 
   /** Stop comparison after first N errors (for performance) */
   maxErrors?: number
+
+  /** Paths to ignore during comparison (entire subtree is skipped) */
+  ignorePaths?: IgnorePathConfig[]
+}
+
+/**
+ * Configuration for a single ignore path.
+ * Segments are matched against the current comparison path.
+ * Use '*' as a wildcard to match any single segment (including array indices like '[0]').
+ */
+export interface IgnorePathConfig {
+  /** Path segments to match (e.g. ['data', 'allFahrtereignis', '*', 'richtung']) */
+  path: (string | number)[]
+
+  /** Optional documentation/reason strings for why this path is ignored */
+  doc?: string[]
 }
 
 /**

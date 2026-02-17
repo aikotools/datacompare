@@ -6,6 +6,7 @@ import {
   type CompareDetail,
   type CompareOptions,
   type CompareContext,
+  type IgnorePathConfig,
   type MatchContext,
 } from './types'
 
@@ -97,6 +98,22 @@ export class RecursiveComparer {
     if (options.maxErrors && this.errors.length >= options.maxErrors) {
       this.currentDepth--
       return
+    }
+
+    // Check if this path should be ignored
+    if (options.ignorePaths && options.ignorePaths.length > 0) {
+      const matched = this.shouldIgnorePath(path, options.ignorePaths)
+      if (matched) {
+        this.addDetail(
+          path,
+          true,
+          expected,
+          actual,
+          `Ignored by ignorePath: ${matched.doc?.join(', ') ?? 'no reason'}`
+        )
+        this.currentDepth--
+        return
+      }
     }
 
     try {
@@ -512,5 +529,52 @@ export class RecursiveComparer {
       actual,
       message,
     })
+  }
+
+  /**
+   * Check if the current path should be ignored based on ignorePaths config.
+   * Returns the matching IgnorePathConfig if found, undefined otherwise.
+   *
+   * A path matches if:
+   * - The ignorePath is equal in length or shorter than currentPath
+   * - All segments of the ignorePath match the corresponding currentPath segments
+   * - '*' in ignorePath matches any segment (including array indices like '[0]')
+   */
+  private shouldIgnorePath(
+    currentPath: string[],
+    ignorePaths: IgnorePathConfig[]
+  ): IgnorePathConfig | undefined {
+    for (const ignorePath of ignorePaths) {
+      const segments = ignorePath.path.map(String)
+
+      // ignorePath must not be longer than currentPath
+      if (segments.length > currentPath.length) {
+        continue
+      }
+
+      let matches = true
+      for (let i = 0; i < segments.length; i++) {
+        const ignoreSegment = segments[i]
+        const currentSegment = currentPath[i]
+
+        if (ignoreSegment === '*') {
+          // Wildcard matches any segment
+          continue
+        }
+
+        if (ignoreSegment === currentSegment) {
+          continue
+        }
+
+        matches = false
+        break
+      }
+
+      if (matches) {
+        return ignorePath
+      }
+    }
+
+    return undefined
   }
 }
