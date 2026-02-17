@@ -15,6 +15,7 @@ export type {
   CompareDetail,
   CompareStats,
   CompareErrorType,
+  IgnorePathConfig,
   ParsedDirective,
   ParsedTransform,
   MatchContext,
