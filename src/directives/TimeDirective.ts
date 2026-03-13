@@ -107,13 +107,13 @@ export class TimeDirective implements CompareDirective {
         if (result.inRange) {
           return {
             success: true,
-            details: `Time within range ${TimeUtils.formatRange(range)} (difference: ${result.difference.toFixed(2)} ${result.unit})`,
+            details: `Time within range ${TimeUtils.formatRange(range)} (actual offset: ${result.difference.toFixed(2)} ${result.unit})`,
             matchedValue: actual,
           }
         } else {
           return {
             success: false,
-            error: `Time outside range ${TimeUtils.formatRange(range)}. Difference: ${result.difference.toFixed(2)} ${result.unit}`,
+            error: `Time outside range ${TimeUtils.formatRange(range)}. Actual offset: ${result.difference.toFixed(2)} ${result.unit}`,
           }
         }
       } catch (error) {
