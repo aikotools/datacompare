@@ -20,6 +20,15 @@ import {
  * - Compare directives
  * - Special keywords (exact, ignore, ignoreRest, ignoreOrder)
  */
+/**
+ * The key that stands for "any key of this object" in an expectation.
+ *
+ * Real data does not use `*` as a property name; protobuf maps are keyed by numbers or
+ * strings. Should it ever appear as a literal key, it cannot be expressed as an expectation —
+ * name the key wildcard explicitly in that case.
+ */
+export const KEY_WILDCARD = '*'
+
 export class RecursiveComparer {
   private parser: CompareParser
   private registry: CompareRegistry
@@ -241,10 +250,25 @@ export class RecursiveComparer {
     // Check for exact matching keyword
     const isExactMode = expected['{{compare:exact}}'] === true || options.strictMode === true
 
+    /*
+     * The key wildcard.
+     *
+     * A protobuf map is keyed by an id the **sender** assigns. An expectation that names that
+     * id ties itself to a number the consumer does not control — it moves as soon as the
+     * producer sends one more message for the same object. `'*'` as a key says "every entry
+     * here looks like this", whatever it is called.
+     *
+     * Concrete keys win: they are compared by name, and the wildcard then covers the actual
+     * keys that no concrete key claimed. At least one such entry has to exist — an expectation
+     * describing an entry is not satisfied by an empty object.
+     */
+    const hasKeyWildcard = KEY_WILDCARD in expected
+
     // Compare all properties in expected
     for (const key of Object.keys(expected)) {
       // Skip special keywords
       if (key === '{{compare:exact}}') continue
+      if (key === KEY_WILDCARD) continue
 
       const expectedValue = expected[key]
       const actualValue = actual[key]
@@ -266,10 +290,35 @@ export class RecursiveComparer {
       await this.compareInternal(expectedValue, actualValue, newPath, context, options)
     }
 
+    const wildcardKeys = hasKeyWildcard ? Object.keys(actual).filter(key => !(key in expected)) : []
+
+    if (hasKeyWildcard) {
+      if (wildcardKeys.length === 0) {
+        this.addError(
+          [...path, KEY_WILDCARD],
+          CompareErrorType.MISSING_PROPERTY,
+          expected[KEY_WILDCARD],
+          undefined,
+          'No property matches the key wildcard in actual object'
+        )
+      }
+
+      for (const key of wildcardKeys) {
+        await this.compareInternal(
+          expected[KEY_WILDCARD],
+          actual[key],
+          [...path, key],
+          context,
+          options
+        )
+      }
+    }
+
     // In exact mode, check for extra properties in actual
     if (isExactMode || !options.ignoreExtraProperties) {
       for (const key of Object.keys(actual)) {
-        if (!(key in expected)) {
+        // Keys covered by the key wildcard were compared above — they are not extra.
+        if (!(key in expected) && !wildcardKeys.includes(key)) {
           this.addError(
             [...path, key],
             CompareErrorType.EXTRA_PROPERTY,

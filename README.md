@@ -439,3 +439,37 @@ This is part of the @aikotools ecosystem. For issues and contributions, please s
 ---
 
 **Built with ❤️ for E2E Testing**
+
+## Key Wildcards
+
+A key `'*'` in an expected object stands for **any key**. Every actual key that no concrete
+expected key claims is compared against it, and at least one such entry has to exist.
+
+```typescript
+await engine.compare({
+  expected: { reasons: { '*': { code: '3', text: 'fire brigade' } } },
+  actual:   { reasons: { '7': { code: '3', text: 'fire brigade' } } },
+  context,
+})
+// ✅ passes — the key '7' does not have to be known in advance
+```
+
+Concrete keys win: they are compared by name, and the wildcard covers the rest.
+
+```typescript
+expected: { reasons: { '1': { code: '31' }, '*': { code: '3' } } }
+actual:   { reasons: { '1': { code: '31' }, '5': { code: '3' }, '6': { code: '3' } } }  // ✅
+```
+
+Errors are reported under the **real** key, so `reasons.9.code` points at the entry that
+differs, not at the wildcard. An empty object fails with `MISSING_PROPERTY` at `reasons.*` —
+an expectation describing an entry is not satisfied by no entry at all.
+
+Entries covered by the wildcard are **not** extra properties, so the wildcard combines with
+`ignoreExtraProperties: false` and `{{compare:exact}}`: the wildcard says what an entry has to
+look like, the strict mode says that nothing else may be there.
+
+Why this matters: a protobuf `map` is keyed by an id the **sender** assigns. Naming that id in
+an expectation ties it to a number the consumer does not control — it moves as soon as the
+producer sends one more message for the same object.
+
